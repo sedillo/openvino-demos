@@ -1,0 +1,25 @@
+version: "3.7"
+
+services:
+  openvino:
+    image: openvino
+    build:
+      dockerfile: Dockerfile.openvino
+      context: .
+  facerecognition:
+    build:
+      dockerfile: Dockerfile.face
+      context: .
+    depends_on:
+      - openvino
+    environment:
+      DISPLAY: ':0'
+    volumes:
+      - /dev:/dev:shared
+      - /tmp/.X11-unix:/tmp/.X11-unix 
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.labels.usb-camera == true
+    privileged: true

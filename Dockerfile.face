@@ -1,0 +1,37 @@
+FROM openvino:latest
+
+#Prerequisites
+RUN ln -fs /usr/share/zoneinfo/America/Phoenix /etc/localtime
+RUN apt-get update && \
+    apt-get install -y git cmake make gcc g++ \
+                       python3-pip python3-setuptools python-setuptools python-opencv \
+                       libcanberra-gtk-module libcanberra-gtk3-module
+RUN dpkg-reconfigure -f noninteractive tzdata
+
+RUN cd $INSTALL_DIR/deployment_tools/inference_engine/samples/c/ && \
+    /bin/bash -c "./build_samples.sh"
+
+#RUN echo $INSTALL_DIR
+RUN $INSTALL_DIR/install_dependencies/install_openvino_dependencies.sh
+
+WORKDIR /home
+RUN pip3 install requests
+RUN git clone https://github.com/opencv/open_model_zoo.git
+
+WORKDIR /home/open_model_zoo/model_downloader
+RUN git checkout 2019_R1
+RUN pip3 install pyyaml
+RUN python3 downloader.py --name face-detection-adas-0001
+RUN python3 downloader.py --name age-gender-recognition-retail-0013
+RUN python3 downloader.py --name head-pose-estimation-adas-0001
+RUN python3 downloader.py --name emotions-recognition-retail-0003
+RUN python3 downloader.py --name facial-landmarks-35-adas-0002
+
+WORKDIR /opt/intel/openvino_2020.2.120/deployment_tools/open_model_zoo/demos/
+RUN bash -C "./build_demos.sh"
+
+CMD bash -c "cd /opt/intel/openvino_2020.2.120/bin/ && \
+             source setupvars.sh && \
+             cd /root/omz_demos_build/intel64/Release/ && \
+             ./interactive_face_detection_demo -i cam -m /home/open_model_zoo/model_downloader/Transportation/object_detection/face/pruned_mobilenet_reduced_ssd_shared_weights/dldt/face-detection-adas-0001.xml -m_ag /home/open_model_zoo/model_downloader/Retail/object_attributes/age_gender/dldt/age-gender-recognition-retail-0013.xml -m_hp /home/open_model_zoo/model_downloader/Transportation/object_attributes/headpose/vanilla_cnn/dldt/head-pose-estimation-adas-0001.xml"
+
