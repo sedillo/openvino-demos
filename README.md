@@ -1,7 +1,15 @@
 # openvino-demos
 
 ## Facial Recognition demo
+
+### To build for CPU
 ```
-Install docker and docker-compose
-docker-compose -f docker-compose.face.yml up
+docker-compose -f docker-compose.yml -f docker-compose.face-cpu.yml build
+docker-compose -f docker-compose.yml -f docker-compose.face-cpu.yml up
+```
+### To build for GPU
+
+```
+docker-compose -f docker-compose.yml -f docker-compose.face-gpu.yml build
+docker-compose -f docker-compose.yml -f docker-compose.face-gpu.yml up
 ```
