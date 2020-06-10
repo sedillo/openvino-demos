@@ -1,14 +1,9 @@
 version: "3.7"
 
 services:
-  openvino:
-    image: openvino
+  facerecognition-gpu:
     build:
-      dockerfile: Dockerfile.openvino
-      context: .
-  facerecognition:
-    build:
-      dockerfile: Dockerfile.face
+      dockerfile: Dockerfile.face-gpu
       context: .
     depends_on:
       - openvino
