@@ -1,0 +1,15 @@
+FROM openvino:latest
+
+WORKDIR /opt/intel/openvino_2020.2.120/deployment_tools/open_model_zoo/demos/
+RUN bash -C "./build_demos.sh"
+
+WORKDIR /opt/intel/openvino_2020.2.120/deployment_tools/tools/model_downloader
+RUN python3 downloader.py --name person-vehicle-bike-detection-crossroad-0078
+RUN python3 downloader.py --name person-attributes-recognition-crossroad-0230
+RUN python3 downloader.py --name person-reidentification-retail-0248
+
+CMD bash -c "cd /opt/intel/openvino_2020.2.120/bin/ && \
+             source setupvars.sh && \
+             cd /root/omz_demos_build/intel64/Release/ && \
+             ./crossroad_camera_demo -i cam -m /opt/intel/openvino_2020.2.120/deployment_tools/open_model_zoo/tools/downloader/intel/person-vehicle-bike-detection-crossroad-0078/FP32/person-vehicle-bike-detection-crossroad-0078.xml -m_pa /opt/intel/openvino_2020.2.120/deployment_tools/open_model_zoo/tools/downloader/intel/person-attributes-recognition-crossroad-0230/FP32/person-attributes-recognition-crossroad-0230.xml -m_reid /opt/intel/openvino_2020.2.120/deployment_tools/open_model_zoo/tools/downloader/intel/person-reidentification-retail-0248/FP32/person-reidentification-retail-0248.xml -d CPU"
+
